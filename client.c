@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
   }
 
   printf("Connected to %s:%d\n", server_ip, server_port);
-  printf("Start with '/' for commands (e.g., '/exit').\nUSERNAME:");
+  printf("use '/help' to list commands\n - USERNAME:");
+  
 
   fd_set read_fds;
   struct timeval tv;

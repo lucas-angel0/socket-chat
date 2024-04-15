@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+echo "Compiling server..."
+gcc -o server server.c -lpthread
+echo "Compiling client..."
+gcc -o client client.c
