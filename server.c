@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <time.h>
 #include <unistd.h>
 
 #define MAX_CLIENTS 100
@@ -21,6 +22,45 @@ pthread_mutex_t clients_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void send_to_client(int sock, const char *message) {
   send(sock, message, strlen(message), 0);
+}
+
+// Function to color a string randomly and return the new string
+char *colorize_string(const char *inputString) {
+  // ANSI color codes for foreground colors
+  const char *colors[] = {
+      "\033[31m", // Red
+      "\033[32m", // Green
+      "\033[33m", // Yellow
+      "\033[34m", // Blue
+      "\033[35m", // Magenta
+      "\033[36m", // Cyan
+      "\033[37m"  // White
+  };
+
+  // Initialize random number generator
+  srand(time(NULL));
+
+  // Get a random index for colors array
+  int randomIndex = rand() % (sizeof(colors) / sizeof(colors[0]));
+
+  // Calculate needed buffer size
+  size_t neededSize = strlen(inputString) + strlen(colors[randomIndex]) +
+                      5; // +5 for escape sequence and null terminator
+
+  // Allocate memory for the new string
+  char *coloredString = malloc(neededSize);
+
+  if (coloredString == NULL) {
+    fprintf(stderr, "Memory allocation failed\n");
+    exit(1);
+  }
+
+  // Construct the new string
+  strcpy(coloredString, colors[randomIndex]);
+  strcat(coloredString, inputString);
+  strcat(coloredString, "\033[0m"); // Reset color
+
+  return coloredString;
 }
 
 const char *find_username_by_socket(int sock) {
@@ -112,7 +152,8 @@ void add_client(int client_sock, const char *username) {
   for (int i = 0; i < MAX_CLIENTS; i++) {
     if (clients[i].socket == 0) {
       clients[i].socket = client_sock;
-      strncpy(clients[i].username, username, MAX_USERNAME_LENGTH);
+      strncpy(clients[i].username, colorize_string(username),
+              MAX_USERNAME_LENGTH);
       clients[i].username[MAX_USERNAME_LENGTH - 1] =
           '\0'; // Ensure null termination
       break;
